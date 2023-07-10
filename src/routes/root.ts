@@ -1,11 +1,8 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { __dirname } from '../global/variables.js';
 
 const router = express.Router();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 router.get('^/$|/index(.html)?', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, '..', '..', 'views', 'index.html'));
