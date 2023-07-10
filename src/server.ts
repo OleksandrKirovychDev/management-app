@@ -1,16 +1,23 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express, { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
 import root from './routes/root.js';
-import { logger } from './middleware/logger.js';
+import { logger, logEvents } from './middleware/logger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { __dirname } from './global/variables.js';
 import { corsOptions } from './config/corsOptions.js';
+import { connectDB } from './config/dbConnection.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+console.log(process.env.NODE_ENV);
+
+connectDB();
 
 //middleware
 app.use(logger);
@@ -35,4 +42,15 @@ app.all('*', (req: Request, res: Response) => {
 // for unhandled errors
 app.use(errorHandler);
 
-app.listen(PORT, () => console.log(`running on port ${PORT}`));
+mongoose.connection.once('open', () => {
+  console.log('connected to Mongo');
+  app.listen(PORT, () => console.log(`running on port ${PORT}`));
+});
+
+mongoose.connection.on('error', (err) => {
+  console.log(err);
+  logEvents(
+    `${err.no}: ${err.code}\t${err.synccall}\t${err.hostname}`,
+    'mongoErrLog.log'
+  );
+});
