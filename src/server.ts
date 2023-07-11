@@ -12,6 +12,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { __dirname } from './global/variables.js';
 import { corsOptions } from './config/corsOptions.js';
 import { connectDB } from './config/dbConnection.js';
+import userRoutes from './routes/userRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,7 +26,10 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use('/', express.static(path.join(__dirname, '../public')));
+
+//routes
 app.use('/', root);
+app.use('/users', userRoutes);
 
 //should be at the end
 app.all('*', (req: Request, res: Response) => {

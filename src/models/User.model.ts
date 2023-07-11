@@ -1,11 +1,21 @@
 import mongoose from 'mongoose';
+import { TRoles } from '../types/rolesType.js';
 
-const userSchema = new mongoose.Schema({
+export interface IUser {
+  username: string;
+  password: string;
+  roles: TRoles[];
+  active: boolean;
+}
+
+export type TCreatedUser = IUser & { id: string };
+
+const userSchema = new mongoose.Schema<IUser>({
   username: {
     type: String,
     required: true,
   },
-  pasword: {
+  password: {
     type: String,
     required: true,
   },
@@ -23,4 +33,4 @@ const userSchema = new mongoose.Schema({
   ],
 });
 
-export default mongoose.model('User', userSchema);
+export default mongoose.model<IUser>('User', userSchema);
