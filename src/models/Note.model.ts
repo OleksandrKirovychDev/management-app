@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import AutoIncrement from 'mongoose-sequence';
+import Inc from 'mongoose-sequence';
 
 const noteSchema = new mongoose.Schema(
   {
@@ -28,8 +28,10 @@ const noteSchema = new mongoose.Schema(
   }
 );
 
-AutoIncrement(noteSchema);
+// @ts-ignore
+const AutoIncrement = Inc(mongoose);
 
+// @ts-ignore
 noteSchema.plugin(AutoIncrement, {
   inc_field: 'ticket',
   id: 'ticketNums',

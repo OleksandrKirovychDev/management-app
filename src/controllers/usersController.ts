@@ -14,7 +14,7 @@ export const getAllUsers = async (
 ) => {
   try {
     const users = await User.find().select('-password').lean();
-    if (!users) {
+    if (!users?.length) {
       return res.status(400).json({ message: 'No users found' });
     }
     res.json(users);
@@ -32,19 +32,19 @@ export const createNewUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { username, password, roles } = req.body;
-
-  //confirm data
-  if (!username || !password || !Array.isArray(roles) || !roles.length) {
-    return res.status(400).json({ message: 'All fields are required' });
-  }
-
   try {
+    const { username, password, roles } = req.body;
+
+    //confirm data
+    if (!username || !password || !Array.isArray(roles) || !roles.length) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
     //check for duplicate
     const duplicate = await User.findOne({ username }).lean().exec();
 
     if (duplicate) {
-      res.status(409).json({ message: 'Duplicate username' });
+      return res.status(409).json({ message: 'Duplicate username' });
     }
 
     //Hash password
@@ -73,20 +73,20 @@ export const updateUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { id, username, roles, active, password } = req.body;
-
-  //confirm data
-  if (
-    !id ||
-    !username ||
-    !Array.isArray(roles) ||
-    !roles.length ||
-    typeof active !== 'boolean'
-  ) {
-    return res.status(400).json({ message: 'All fields are required' });
-  }
-
   try {
+    const { id, username, roles, active, password } = req.body;
+
+    //confirm data
+    if (
+      !id ||
+      !username ||
+      !Array.isArray(roles) ||
+      !roles.length ||
+      typeof active !== 'boolean'
+    ) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
     const user = await User.findById(id).exec();
 
     if (!user) {
@@ -122,29 +122,34 @@ export const updateUser = async (
 // @access Private
 export const deleteUser = async (
   req: Request<{}, {}, Pick<TCreatedUser, 'id'>>,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
-  const { id } = req.body;
+  try {
+    const { id } = req.body;
 
-  if (!id) {
-    return res.status(400).json({ message: 'User ID required' });
+    if (!id) {
+      return res.status(400).json({ message: 'User ID required' });
+    }
+
+    const user = await User.findById(id).exec();
+
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' });
+    }
+
+    const notes = await Note.find({ user: id }).lean().exec();
+
+    if (notes?.length) {
+      return res.status(400).json({ message: 'User has assigned notes' });
+    }
+
+    const result = await user.deleteOne();
+
+    const reply = `Username ${result.username} with ID ${result._id} deleted`;
+
+    res.json(reply);
+  } catch (error) {
+    next(error);
   }
-
-  const notes = await Note.find({ user: id }).lean().exec();
-
-  if (notes?.length) {
-    return res.status(400).json({ message: 'User has assigned notes' });
-  }
-
-  const user = await User.findById(id).exec();
-
-  if (!user) {
-    return res.status(400).json({ message: 'User not found' });
-  }
-
-  const result = await user.deleteOne();
-
-  const reply = `Username ${result.username} with ID ${result._id} deleted`;
-
-  res.json(reply);
 };

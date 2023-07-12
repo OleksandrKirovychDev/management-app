@@ -25,12 +25,10 @@ const userSchema = new mongoose.Schema<IUser>({
       default: 'employee',
     },
   ],
-  active: [
-    {
-      type: Boolean,
-      default: true,
-    },
-  ],
+  active: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 export default mongoose.model<IUser>('User', userSchema);
