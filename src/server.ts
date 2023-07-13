@@ -6,13 +6,15 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
-import root from './routes/root.js';
 import { logger, logEvents } from './middleware/logger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { __dirname } from './global/variables.js';
 import { corsOptions } from './config/corsOptions.js';
 import { connectDB } from './config/dbConnection.js';
+
+import root from './routes/root.js';
 import userRoutes from './routes/userRoutes.js';
+import noteRoutes from './routes/noteRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,6 +32,7 @@ app.use('/', express.static(path.join(__dirname, '..', 'public')));
 //routess
 app.use('/', root);
 app.use('/users', userRoutes);
+app.use('/notes', noteRoutes);
 
 //should be at the end
 app.all('*', (req: Request, res: Response) => {
