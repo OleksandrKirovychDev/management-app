@@ -27,7 +27,8 @@ app.use(express.json());
 app.use(cookieParser());
 app.use('/', express.static(path.join(__dirname, '..', 'public')));
 
-//routesss
+//routes
+
 app.use('/', root);
 app.use('/users', userRoutes);
 
