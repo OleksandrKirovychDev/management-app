@@ -43,7 +43,7 @@ app.all('*', (req: Request, res: Response) => {
   }
 });
 
-// for unhandled errors
+// for unhandled error
 app.use(errorHandler);
 
 mongoose.connection.once('open', () => {
